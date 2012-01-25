@@ -2,6 +2,8 @@ package nielinjie.app.toBeCloud
 package config
 import java.io.File
 import nielinjie.util.io.FileUtil
+import comm._
+import nielinjie.util.io.LocalAddress
 
 object Configs {
   def default = defaultDeveloping
@@ -12,8 +14,9 @@ object Configs {
 
     val connetPingPort: Int = 3003
     val connetPongPort = 3004
-    
+
     val configFilePath = new File(FileUtil.home.toOption.getOrElse(new File(".")), ".toBeCloud")
+    val mockPeers = List()
   }
   object defaultDeveloping extends Config {
     val flashSendPort: Int = 3001
@@ -22,8 +25,22 @@ object Configs {
 
     val connetPingPort: Int = 3003
     val connetPongPort = 3004
-    
+
     val configFilePath = new File("./configMock/.toBeCloud")
+
+    val mockPeers = List(Peer(LocalAddress.getFirstNonLoopbackAddress(true, false).getHostAddress, 3008))
+
+  }
+  object defaultDeveloping2 extends Config {
+    val flashSendPort: Int = 3005
+    val flashRevPort: Int = 3006
+    val flashInterval: Int = 1000
+
+    val connetPingPort: Int = 3007
+    val connetPongPort = 3008
+
+    val configFilePath = new File("./configMock2/.toBeCloud")
+    val mockPeers = List(Peer(LocalAddress.getFirstNonLoopbackAddress(true, false).getHostAddress, 3004))
   }
 }
 trait Config {
@@ -33,6 +50,7 @@ trait Config {
 
   val connetPingPort: Int
   val connetPongPort: Int
-  
+
   val configFilePath: File
+  val mockPeers: List[Peer]
 }

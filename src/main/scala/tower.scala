@@ -4,17 +4,27 @@ import nielinjie.util.io.Flasher
 import java.net.InetAddress
 import nielinjie.util.io.FlashMessage
 import config.Config
+import nielinjie.util.io.LocalAddress
+import reactive.Observing
 
-class Tower(val config: Config) {
-  val flasher = new Flasher(config.flashSendPort, config.flashRevPort)
+class Tower(val config: Config) extends Observing {
+  val flasher = new Flasher(config.flashSendPort, config.flashRevPort, LocalAddress.getFirstNonLoopbackAddress(true, false).getHostAddress + ":" + config.connetPongPort)
   val watching = flasher.keepWatching
-  watching.start
-  flasher.keepFlashing(config.flashInterval)
-  def peers = watching.messages.distinct.map {
-    message: FlashMessage =>
-      Peer(message.origin)
+  var peers_ = List[Peer]()
+  watching.msges.foreach {
+    messages =>
+      peers_ = messages.distinct.map {
+        message: FlashMessage =>
+          val parts = message.message.split(":")
+          Peer(parts(0), parts(1).toInt)
+      }
   }
-  def messages = watching.messages
+  def peers=if(config.mockPeers.isEmpty) peers_ else config.mockPeers
+  def start = {
+    watching.start
+    flasher.keepFlashing(config.flashInterval)
+  }
+
 }
 
-case class Peer(address: InetAddress)
+case class Peer(ip: String, port: Int)

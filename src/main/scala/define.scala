@@ -1,7 +1,7 @@
 package nielinjie.app.toBeCloud
 package domain
 
-import config.Configs
+import config.Config
 import nielinjie.util.io.FileUtil._
 import java.io.File
 import scala.collection.JavaConversions._
@@ -10,10 +10,10 @@ import Scalaz._
 import org.ini4j.Ini
 import org.ini4j.Profile.Section
 
-object Define {
+class Define(config:Config) {
   import nielinjie.util.data.Params._
 
-  lazy val file = needFile(new File(Configs.default.configFilePath, "define.ini"))
+  lazy val file = needFile(new File(config.configFilePath, "define.ini"))
   val mountDefineConfigLookUp = {
     for {
       name <- lookUpFor[String]("name").required

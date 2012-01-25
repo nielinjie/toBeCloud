@@ -13,9 +13,11 @@ import java.net.InetAddress
 import nielinjie.util.io.LocalAddress
 
 class Connect(val config: Config) extends Logger {
+  val domain=new Domain(config)
   def startPing(toPeer: Peer): Unit = {
+    logger.debug("toPeer - %s".format(toPeer))
     val port = config.connetPingPort
-    val peer = Node(toPeer.address.getHostAddress(), config.connetPongPort)
+    val peer = Node(toPeer.ip,toPeer.port)
     val ping = new RemotePing(port, peer, 16)
     ping.start()
     logger.debug("ping start")
@@ -44,6 +46,7 @@ class Connect(val config: Config) extends Logger {
           case LsOk(lsResult) => {
             logger.debug("Ping revieved: LsOk")
             logger.debug(lsResult.toString)
+            logger.debug(domain.updated(lsResult).toString)
           }
           case Exit(pong, 'normal) => {
             logger.debug("Ping recieved: exit")
@@ -65,9 +68,8 @@ class Connect(val config: Config) extends Logger {
           }
           case Ls => {
             logger.debug("Pong recived: ls")
-            logger.debug(Domain.ls().toString)
             logger.debug("what?")
-            reply(LsOk(Domain.ls().map(_.remoteView)))
+            reply(LsOk(domain.ls().map(_.remoteView)))
           }
           case Quit => {
             logger.debug("Pong recieved: stop")
@@ -87,6 +89,9 @@ case object Quit
 object PingPong extends App {
   val connet = new Connect(Configs.defaultDeveloping)
   connet.startPong()
+  val connet2=new Connect(Configs.defaultDeveloping2)
+  connet2.startPong
   Thread.sleep(2000)
-  connet.startPing(Peer(LocalAddress.getFirstNonLoopbackAddress(true,false)))
+  
+  connet.startPing(Peer(LocalAddress.getFirstNonLoopbackAddress(true, false).getHostAddress,Configs.defaultDeveloping2.connetPongPort))
 }

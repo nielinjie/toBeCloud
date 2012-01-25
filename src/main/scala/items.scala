@@ -6,6 +6,7 @@ import java.io.File
 import java.net.InetAddress
 import nielinjie.util.io.FileUtil
 import nielinjie.util.io.Logger
+import config._
 
 case object Ls
 
@@ -31,33 +32,26 @@ case class Mount(name: String, point: File) {
   }
 }
 
-object Domain extends Logger {
+class Domain(config: Config) extends Logger {
+  val mounts = new Mounts(config)
+  val define = new Define(config)
   def ls(): List[Item] = {
-    Mounts.mounts.map(_.ls).flatten
+    mounts.mounts.map(_.ls).flatten
   }
 
-}
-object Mounts {
-  def mounts: List[Mount] = Define.mounts
-  def byName(name: String): Option[Mount] = mounts.find(_.name == name)
-}
-
-object Items {
+  val strategy = new NewStrategy
   def updated(incoming: List[RemoteItem]): List[Transform] = {
     incoming.groupBy(_.mountName).map({
       case (name, remoteItems) =>
-        Mounts.byName(name) match {
-          case Some(mount) => updateInOneMount(remoteItems, mount)
+        mounts.byName(name) match {
+          case Some(mount) => strategy.need(remoteItems, mount)
           case None => List[Transform]()
         }
     }).flatten.toList
   }
-
-  def updateInOneMount(remoteItems: List[RemoteItem], mount: Mount): List[Transform] = {
-    val localItems = mount.ls
-    remoteItems.filter({
-      reItem =>
-        !localItems.map(_.relativePath).contains(reItem.relativePath)
-    }).map(reItem => Transform(reItem, Item(mount, new File(mount.point, reItem.relativePath))))
+  class Mounts(config: Config) {
+    def mounts: List[Mount] = define.mounts
+    def byName(name: String): Option[Mount] = mounts.find(_.name == name)
   }
 }
+
