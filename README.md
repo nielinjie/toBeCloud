@@ -3,7 +3,7 @@ ToBeCloud(2BCloud)
 分布式的家庭云存储，文件在家庭局域网各设备间分享同步。
 并不是真正的云，可以认为是2B云。
 
-![2BCloud](./tobeCloudP.png)
+![2BCloud](./pic/tobeCloudP.png)
 
 使用场景
 
