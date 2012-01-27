@@ -38,7 +38,6 @@ class Web(config: Config, domain: Domain) {
         "acceptRanges" -> "true",
         "dirAllowed" -> "true",
         "pathInfoOnly" -> "true"))
-//        "resourceBase" -> mount.point.getAbsolutePath))
   }
 }
 
