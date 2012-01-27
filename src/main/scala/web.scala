@@ -30,7 +30,15 @@ class Web(config: Config, domain: Domain) {
   def newDefaultServletHolder(mount: Mount) = new ServletHolder(new DefaultServlet with Logger {
     override def getResource(pathInfo: String) = {
       logger.debug(pathInfo)
-      new FileResource(new URL("file://"+mount.point.getAbsolutePath+"/"+new File(pathInfo).getName))
+      val headAndTailPattern="/(.*?)/(.*)".r
+      pathInfo match {
+        case headAndTailPattern(head,tail)=>{
+          logger.debug(head)
+          logger.debug(tail)
+         new FileResource(new URL("file://"+mount.point.getAbsolutePath+"/"+tail)) 
+        }
+      }
+      
     }
   }).doto {
     holder =>
@@ -42,6 +50,6 @@ class Web(config: Config, domain: Domain) {
 }
 
 object WebStart extends App {
-  val web = new Web(Configs.defaultDeveloping, new Domain(Configs.defaultDeveloping))
+  val web = new Web(Configs.defaultDeveloping2, new Domain(Configs.defaultDeveloping2))
   web.start
 }

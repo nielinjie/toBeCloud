@@ -11,15 +11,17 @@ class Tower(val config: Config) extends Observing {
   val flasher = new Flasher(config.flashSendPort, config.flashRevPort, LocalAddress.getFirstNonLoopbackAddress(true, false).getHostAddress + ":" + config.connetPongPort)
   val watching = flasher.keepWatching
   var peers_ = List[Peer]()
+  val addressPattern = "(.*):(.*)".r
   watching.msges.foreach {
     messages =>
       peers_ = messages.distinct.map {
         message: FlashMessage =>
-          val parts = message.message.split(":")
-          Peer(parts(0), parts(1).toInt)
+          message.message match {
+            case addressPattern(ip, port) => Peer(ip, port.toInt)
+          }
       }
   }
-  def peers=if(config.mockPeers.isEmpty) peers_ else config.mockPeers
+  def peers = if (config.mockPeers.isEmpty) peers_ else config.mockPeers
   def start = {
     watching.start
     flasher.keepFlashing(config.flashInterval)
