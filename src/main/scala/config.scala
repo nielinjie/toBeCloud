@@ -16,7 +16,7 @@ object Configs {
     val connetPongPort = 3004
 
     val configFilePath = new File(FileUtil.home.toOption.getOrElse(new File(".")), ".toBeCloud")
-    val mockPeers = List()
+    val webPort=3800
   }
   object defaultDeveloping extends Config {
     val flashSendPort: Int = 3001
@@ -28,7 +28,8 @@ object Configs {
 
     val configFilePath = new File("./configMock/.toBeCloud")
 
-    val mockPeers = List(Peer(LocalAddress.getFirstNonLoopbackAddress(true, false).getHostAddress, 3008))
+    override val mockPeers = List(Peer(LocalAddress.getFirstNonLoopbackAddress(true, false).getHostAddress, 3008))
+    val webPort=3800
 
   }
   object defaultDeveloping2 extends Config {
@@ -40,7 +41,8 @@ object Configs {
     val connetPongPort = 3008
 
     val configFilePath = new File("./configMock2/.toBeCloud")
-    val mockPeers = List(Peer(LocalAddress.getFirstNonLoopbackAddress(true, false).getHostAddress, 3004))
+    override val mockPeers = List(Peer(LocalAddress.getFirstNonLoopbackAddress(true, false).getHostAddress, 3004))
+    val webPort=3801
   }
 }
 trait Config {
@@ -52,5 +54,6 @@ trait Config {
   val connetPongPort: Int
 
   val configFilePath: File
-  val mockPeers: List[Peer]
+  val mockPeers: List[Peer]=List()
+  val webPort:Int
 }

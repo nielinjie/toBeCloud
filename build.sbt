@@ -10,8 +10,7 @@ resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositori
 
 libraryDependencies ++= Seq(
 	"org.scalaz" %% "scalaz-core" % "6.0.3",
-	"org.apache.mina" % "mina-core" % "2.0.4",
-	"commons-net" % "commons-net" % "20030805.205232",
+	"org.eclipse.jetty" % "jetty-servlet" % "7.0.1.v20091125",
 	"nielinjie" %%  "util.io" % "1.0",
 	"nielinjie" %%  "util.data" % "1.0"
 )
