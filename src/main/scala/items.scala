@@ -7,12 +7,13 @@ import java.net.InetAddress
 import nielinjie.util.io.FileUtil
 import nielinjie.util.io.Logger
 import config._
+import java.net.URL
 
 case object Ls
 
 case class LsOk(items: List[RemoteItem])
 case object Where
-case class WhereOk(address: InetAddress)
+case class WhereOk(urls: List[URL])
 
 case class Item(mount: Mount, file: File) {
   def remoteView: RemoteItem = RemoteItem(mount.name, relativePath)

@@ -6,19 +6,15 @@ import nielinjie.util.io.Logger
 
 class Cloud(config: Config) extends Logger {
   val tower = new Tower(config)
-  val connet = new Connect(config)
   def startTower = tower.start
-  def startConnet = connet.startPong
   def standup = {
     startTower
-    startConnet
   }
 
   def ask = {
     tower.peers.foreach {
       peer =>
         logger.info("start ask peer - %s".format(peer))
-        connet.startPing(peer)
     }
   }
 }
