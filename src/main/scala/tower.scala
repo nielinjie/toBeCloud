@@ -29,4 +29,14 @@ class Tower(val config: Config) extends Observing {
 
 }
 
-case class Peer(ip: String, port: Int)
+case class Peer(ip: String, port: Int) {
+  def asString = "%s:%s".format(ip, port)
+}
+object Peer {
+  val addressPattern = "(.*):(.*)".r
+  def fromString(ipAndPort: String) = {
+    val addressPattern(ip, port) = ipAndPort
+    Peer(ip, port.toInt)
+  }
+
+}

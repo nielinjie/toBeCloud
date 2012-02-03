@@ -21,18 +21,33 @@ import unfiltered.request._
 import unfiltered.response._
 import unfiltered.filter.Plan
 
-class Web(val config: Config) extends CommandPlan{
-  val domain=new Domain(config)
+import scalaz._
+import Scalaz._
+
+class Web(val config: Config) extends CommandPlan with UIPlan {
+  //TODO so many depent objects
+  val domain = new Domain(config)
+  val tower = new Tower(config)
+  val client = new ServiceClient(domain)
+  val status = new Status(config, tower, client)
+  val model = new Model(domain, status, tower)
   val server = Http(config.webPort)
+    .context("/web") {
+      context =>
+        context.current.setBaseResource(new FileResource(new File("src/main/www").toURI.toURL))
+    }
+    .filter(uiPlan)
     .context("/files") {
       context =>
         domain.mounts.mounts.foreach {
           mount =>
             context.current.addServlet(newDefaultServletHolder(mount), "/" + mount.name + "/*")
         }
-    }.filter(commandPlan)//.filter(pp)
+    }
+    .filter(commandPlan)
 
   def start = {
+    tower.start
     server.start
     server.join
   }
@@ -48,13 +63,27 @@ class Web(val config: Config) extends CommandPlan{
         "dirAllowed" -> "true",
         "pathInfoOnly" -> "true"))
   }
-  
-  def urlForRemoteItem(remoteItem:RemoteItem)={
-    new URL("http://%s:%s/files/%s/%s".format(Env.getRootIp,config.webPort,remoteItem.mountName,remoteItem.relativePath))
+
+}
+class Model(domain: Domain, status: Status, tower: Tower) {
+  def peers = tower.peers
+}
+class Status(config: Config, tower: Tower, client: ServiceClient) extends Logger {
+  def diff(peer: Peer): List[Transform] = {
+    tower.peers.find(_ == peer).map {
+      peer =>
+        logger.warn(peer.asString)
+        client.diff(peer)
+    }.getOrElse(List())
   }
 }
 
 object WebStart extends App {
-  val web = new Web(Configs.defaultDeveloping2)//, new Domain(Configs.defaultDeveloping2))
+  val web = new Web(Configs.defaultDeveloping2) //, new Domain(Configs.defaultDeveloping2))
+  web.start
+}
+
+object FakePeer extends App {
+  val web = new Web(Configs.defaultDeveloping)
   web.start
 }

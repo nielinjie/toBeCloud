@@ -28,7 +28,7 @@ object Configs {
 
     val configFilePath = new File("./configMock/.toBeCloud")
 
-    override val mockPeers = List(Peer(LocalAddress.getFirstNonLoopbackAddress(true, false).getHostAddress, 3008))
+    override val mockPeers = List(Peer(LocalAddress.getFirstNonLoopbackAddress(true, false).getHostAddress, 3801))
     val webPort=3800
 
   }
@@ -41,7 +41,7 @@ object Configs {
     val connetPongPort = 3008
 
     val configFilePath = new File("./configMock2/.toBeCloud")
-    override val mockPeers = List(Peer(LocalAddress.getFirstNonLoopbackAddress(true, false).getHostAddress, 3004))
+    override val mockPeers = List(Peer(LocalAddress.getFirstNonLoopbackAddress(true, false).getHostAddress, 3800))
     val webPort=3801
   }
 }

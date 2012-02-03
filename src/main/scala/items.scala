@@ -7,6 +7,7 @@ import java.net.InetAddress
 import nielinjie.util.io.FileUtil
 import nielinjie.util.io.Logger
 import config._
+import comm._
 import java.net.URL
 
 case object Ls
@@ -33,7 +34,7 @@ case class Mount(name: String, point: File) {
   }
 }
 
-class Domain(config: Config) extends Logger {
+class Domain(val config: Config) extends Logger {
   val mounts = new Mounts(config)
   val define = new Define(config)
   def ls(): List[Item] = {
@@ -53,6 +54,9 @@ class Domain(config: Config) extends Logger {
   class Mounts(config: Config) {
     def mounts: List[Mount] = define.mounts
     def byName(name: String): Option[Mount] = mounts.find(_.name == name)
+  }
+  def urlForRemoteItem(remoteItem: RemoteItem) = {
+    new URL("http://%s:%s/files/%s/%s".format(Env.getRootIp, config.webPort, remoteItem.mountName, remoteItem.relativePath))
   }
 }
 

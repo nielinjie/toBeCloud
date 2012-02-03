@@ -9,7 +9,7 @@ import domain._
 import nielinjie.util.io.XStreamSerializer
 import unfiltered.filter.Planify
 
-class CommandPlan {
+trait CommandPlan {
   this: Web =>
   val lsOkS = new XStreamSerializer[LsOk]()
   val itemS = new XStreamSerializer[RemoteItem]()
@@ -23,8 +23,10 @@ class CommandPlan {
         whereOkS.serialize(
           WhereOk(
             items.getOrElse(Seq[String]())
-              .map(itemS.unSerialize(_))
-              .map(urlForRemoteItem(_)).toList)))
+              .map {
+                item: String => domain.urlForRemoteItem(itemS.unSerialize(item))
+              }
+              .toList)))
     }
   }
 }
