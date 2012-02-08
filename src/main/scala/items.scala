@@ -9,6 +9,10 @@ import nielinjie.util.io.Logger
 import config._
 import comm._
 import java.net.URL
+import nielinjie.util.io.Serializer
+import nielinjie.util.io.XStreamSerializer
+import scalaz._
+import Scalaz._
 
 case object Ls
 
@@ -21,15 +25,29 @@ case class Item(mount: Mount, file: File) {
   def relativePath = FileUtil.relativePath(mount.point, file)
 }
 case class RemoteItem(mountName: String, relativePath: String)
-case class Transform(source: RemoteItem, dis: Item)
+case class Transform(source: RemoteItem, dis: Item){
+  
+  //def save(input:Input)
+}
 
 case class Mount(name: String, point: File) {
+  val historyFile = new File(point, ".toBeCloud/.history")
+  val historyItemsS = new XStreamSerializer[List[HistoryItem]]()
   def ls: List[Item] = {
     allCatch.opt {
       FileUtil.recursiveListFiles(point).map({
         file: File =>
           Item(this, file)
       })
+    }.getOrElse(List())
+  }
+  def saveHistory(items: List[HistoryItem]) = {
+    FileUtil.needFile(historyFile).foreach(_ => FileUtil.toFile(historyItemsS.serialize(items), historyFile))
+  }
+  def loadHistory(): List[HistoryItem] = {
+    FileUtil.needFile(historyFile).toOption.join.map {
+      file =>
+        historyItemsS.unSerialize(FileUtil.fromFile(file))
     }.getOrElse(List())
   }
 }
@@ -54,6 +72,7 @@ class Domain(val config: Config) extends Logger {
   class Mounts(config: Config) {
     def mounts: List[Mount] = define.mounts
     def byName(name: String): Option[Mount] = mounts.find(_.name == name)
+
   }
   def urlForRemoteItem(remoteItem: RemoteItem) = {
     new URL("http://%s:%s/files/%s/%s".format(Env.getRootIp, config.webPort, remoteItem.mountName, remoteItem.relativePath))

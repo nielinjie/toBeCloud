@@ -20,16 +20,17 @@ import unfiltered.filter.request._
 import unfiltered.request._
 import unfiltered.response._
 import unfiltered.filter.Plan
-
 import scalaz._
 import Scalaz._
+import java.util.Date
 
 class Web(val config: Config) extends CommandPlan with UIPlan {
   //TODO so many depent objects
   val domain = new Domain(config)
   val tower = new Tower(config)
   val client = new ServiceClient(domain)
-  val status = new Status(config, tower, client)
+  val history = new History(domain)
+  val status = new Status(config, tower, client, history)
   val model = new Model(domain, status, tower)
   val server = Http(config.webPort)
     .context("/web") {
@@ -68,13 +69,22 @@ class Web(val config: Config) extends CommandPlan with UIPlan {
 class Model(domain: Domain, status: Status, tower: Tower) {
   def peers = tower.peers
 }
-class Status(config: Config, tower: Tower, client: ServiceClient) extends Logger {
+class Status(config: Config, tower: Tower, client: ServiceClient, history: History) extends Logger {
   def diff(peer: Peer): List[Transform] = {
     tower.peers.find(_ == peer).map {
       peer =>
         logger.warn(peer.asString)
         client.diff(peer)
     }.getOrElse(List())
+  }
+  def download(peer: Peer, transform: Transform) = {
+    //    val hi=H
+    val hi = new DownloadHistory(new Date(), transform)
+    history.append(hi)
+    client.download(peer, transform, hi)
+  }
+  def history(length: Int): List[HistoryItem] = {
+    history.tail(length)
   }
 }
 

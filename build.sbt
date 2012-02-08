@@ -8,12 +8,14 @@ resolvers += ScalaToolsSnapshots
 
 resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots"
 
+
 libraryDependencies ++= Seq(
 	"org.scalaz" %% "scalaz-core" % "6.0.3",
 	"net.databinder" %% "unfiltered-filter" % "0.5.3",
 	"net.databinder" %% "unfiltered-jetty" % "0.5.3",
 	"net.databinder" %% "unfiltered-json" % "0.5.3",
 	"net.databinder" %% "dispatch-http" % "0.8.7",
+	"net.debasishg" %% "sjson" % "0.15",
 	"nielinjie" %%  "util.io" % "1.0",
 	"nielinjie" %%  "util.data" % "1.0"
 )

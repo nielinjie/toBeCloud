@@ -19,6 +19,7 @@ trait CommandPlan {
       ResponseString(lsOkS.serialize((LsOk(domain.ls().map(_.remoteView)))))
     case (Path(Seg("command" :: "where" :: Nil)) & Params(params)) => {
       val items = params.get("items")
+      println(items)
       ResponseString(
         whereOkS.serialize(
           WhereOk(

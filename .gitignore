@@ -6,6 +6,7 @@
 .project
 .cache
 .classpath
+.settings
 
 doc/
 target/
