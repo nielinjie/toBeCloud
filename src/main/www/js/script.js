@@ -23,18 +23,17 @@ function peer_refresh() {
 	});
 }
 function peer_display(peer) {
-	var a = $("<a href='#'></a>").text(peer.ip +":"+peer.port).click(function() {
-		diff_refresh(peer);
-		return false
-	})
-	return $('<li></li>').append(a);
+	var li = $("<li></li>").text(peer.ip +":"+peer.port)
+	diff_refresh(peer,li);
+	return li
 }
-function diff_refresh(peer) {
+function diff_refresh(peer,peerLi) {
 	$.getJSON('/ui/diff',{"peer":peer.ip+":"+peer.port},function(diffs){
-		$('#diff-list').empty()
+		var ul=$('<ul></ul>')
 		$.each(diffs.diff, function(index, diff){
-			diff_item(diff,peer).appendTo('#diff-list')
+			diff_item(diff,peer).appendTo(ul)
 		})
+		ul.appendTo(peerLi)
 	})
 	
 }

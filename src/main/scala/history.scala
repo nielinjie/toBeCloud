@@ -2,6 +2,8 @@ package nielinjie.app.toBeCloud
 package domain
 
 import java.util.Date
+import scalaz._
+import Scalaz._
 
 class History(domain: Domain) {
   var items: List[HistoryItem] = List()
@@ -27,12 +29,19 @@ trait HistoryItem {
   def mountName: String
 }
 
-class DownloadHistory(var time: Date, val transform: Transform) extends HistoryItem {
-  var procssed: Int = _
-  var total: Int = _
+class DownloadHistory(val startTime: Date, val transform: Transform) extends HistoryItem {
+  var processed: Option[Int] = None
+  var total: Option[Int] = None
   var done = false
   def mountName = transform.dis.mount.name
+  def time = startTime
+  def speed = processed.map(_ / ((new Date().getTime - startTime.getTime) / 60))
+  def percent: Option[Int] = (processed |@| total) {
+    case (p, t) =>
+      (p / t) * 100
+  }
+
   override def toString = {
-    "Downloading from %s, %d/%d".format(transform.source.relativePath, procssed, total)
+    "Downloading from %s, %s/%s".format(transform.source.relativePath, processed, total)
   }
 }

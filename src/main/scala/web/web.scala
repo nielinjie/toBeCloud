@@ -23,6 +23,8 @@ import unfiltered.filter.Plan
 import scalaz._
 import Scalaz._
 import java.util.Date
+import java.net.URLEncoder
+import java.net.URLDecoder
 
 class Web(val config: Config) extends CommandPlan with UIPlan {
   //TODO so many depent objects
@@ -55,7 +57,7 @@ class Web(val config: Config) extends CommandPlan with UIPlan {
   def newDefaultServletHolder(mount: Mount) = new ServletHolder(new DefaultServlet with Logger {
     override def getResource(pathInfo: String) = {
       logger.debug(pathInfo)
-      new FileResource(new URL("file://" + mount.point.getAbsolutePath + pathInfo))
+      new FileResource(new URL("file://" + mount.point.getAbsolutePath + URLDecoder.decode(pathInfo)))
     }
   }).doto {
     holder =>
@@ -78,7 +80,7 @@ class Status(config: Config, tower: Tower, client: ServiceClient, history: Histo
     }.getOrElse(List())
   }
   def download(peer: Peer, transform: Transform) = {
-    //    val hi=H
+    //TODO find downloaded or downloading files
     val hi = new DownloadHistory(new Date(), transform)
     history.append(hi)
     client.download(peer, transform, hi)

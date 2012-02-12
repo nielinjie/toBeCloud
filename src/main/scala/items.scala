@@ -13,6 +13,7 @@ import nielinjie.util.io.Serializer
 import nielinjie.util.io.XStreamSerializer
 import scalaz._
 import Scalaz._
+import java.net.URLEncoder
 
 case object Ls
 
@@ -61,6 +62,7 @@ class Domain(val config: Config) extends Logger {
 
   val strategy = new NewStrategy
   def updated(incoming: List[RemoteItem]): List[Transform] = {
+    //TODO think about downloading files
     incoming.groupBy(_.mountName).map({
       case (name, remoteItems) =>
         mounts.byName(name) match {
@@ -75,7 +77,7 @@ class Domain(val config: Config) extends Logger {
 
   }
   def urlForRemoteItem(remoteItem: RemoteItem) = {
-    new URL("http://%s:%s/files/%s/%s".format(Env.getRootIp, config.webPort, remoteItem.mountName, remoteItem.relativePath))
+    new URL("http://%s:%s/files/%s/%s".format(Env.getRootIp, config.webPort, URLEncoder.encode(remoteItem.mountName), URLEncoder.encode(remoteItem.relativePath)))
   }
 }
 

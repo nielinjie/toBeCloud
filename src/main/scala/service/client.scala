@@ -12,12 +12,17 @@ import JavaConverters.asInputConverter
 import JavaConverters.asOutputConverter
 import nielinjie.util.io.CountingInput
 import nielinjie.util.data.Helper._
+import nielinjie.util.io.Logger
 import reactive.Observing
 
 import scalaz._
 import Scalaz._
 
-class ServiceClient(val domain: Domain) extends Observing {
+class ServiceClient(val domain: Domain) extends Observing with Logger {
+  System.getProperties.put("HTTPClient.disableKeepAlives ", "true")
+  System.getProperties.put("HTTPClient.dontChunkRequests", "true")
+  System.getProperties.put("HTTPClient.forceHTTP_1.0", "true")
+
   val lsOkS = new XStreamSerializer[LsOk]()
   val whereOkS = new XStreamSerializer[WhereOk]()
   val itemS = new XStreamSerializer[RemoteItem]()
@@ -34,19 +39,20 @@ class ServiceClient(val domain: Domain) extends Observing {
   def download(peer: Peer, transform: Transform, historyItem: DownloadHistory) = {
     val sourceUrl = where(peer, transform)
     val h = new thread.Http
-
+    logger.info(sourceUrl.toString)
     h(url(sourceUrl.toString) >:+ { (headers, req) =>
-      println(headers)
+      logger.debug(headers.toString)
       headers.get("content-length").getOrElse(Seq()).foreach {
         len: String =>
-          println(len)
-          historyItem.total = len.toInt
+          historyItem.total = len.toInt.some
       }
       req >> {
         stream: InputStream =>
           val input = new CountingInput(stream.asInput).doto {
             ci =>
-              ci.count.foreach(historyItem.procssed = _)
+              ci.count.foreach {
+                case (count) => historyItem.processed = count.some
+              }
           }.asInput
 
           input.copyDataTo(transform.dis.file.asOutput)
