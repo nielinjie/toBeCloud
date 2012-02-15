@@ -25,15 +25,15 @@ case class Item(mount: Mount, file: File) {
   def remoteView: RemoteItem = RemoteItem(mount.name, relativePath)
   def relativePath = FileUtil.relativePath(mount.point, file)
 }
-case class RemoteItem(mountName: String, relativePath: String)
-case class Transform(source: RemoteItem, dis: Item){
-  
+case class RemoteItem(peer: Peer, mountName: String, relativePath: String)
+case class Transform(source: RemoteItem, dis: Item) {
+
   //def save(input:Input)
 }
 
 case class Mount(name: String, point: File) {
   val historyFile = new File(point, ".toBeCloud/.history")
-  val historyItemsS = new XStreamSerializer[List[HistoryItem]]()
+  val historyItemsS = new XStreamSerializer[List[DownloadHistory]]()
   def ls: List[Item] = {
     allCatch.opt {
       FileUtil.recursiveListFiles(point).map({
@@ -42,10 +42,10 @@ case class Mount(name: String, point: File) {
       })
     }.getOrElse(List())
   }
-  def saveHistory(items: List[HistoryItem]) = {
+  def saveHistory(items: List[DownloadHistory]) = {
     FileUtil.needFile(historyFile).foreach(_ => FileUtil.toFile(historyItemsS.serialize(items), historyFile))
   }
-  def loadHistory(): List[HistoryItem] = {
+  def loadHistory(): List[DownloadHistory] = {
     FileUtil.needFile(historyFile).toOption.join.map {
       file =>
         historyItemsS.unSerialize(FileUtil.fromFile(file))
@@ -56,6 +56,8 @@ case class Mount(name: String, point: File) {
 class Domain(val config: Config) extends Logger {
   val mounts = new Mounts(config)
   val define = new Define(config)
+  val history = new History(this)
+  val peer = de
   def ls(): List[Item] = {
     mounts.mounts.map(_.ls).flatten
   }

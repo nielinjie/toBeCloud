@@ -6,12 +6,12 @@ import scalaz._
 import Scalaz._
 
 class History(domain: Domain) {
-  var items: List[HistoryItem] = List()
+  var items: List[DownloadHistory] = List()
   def byMountName() = {
     items.groupBy(_.mountName)
   }
   def tail(length: Int) = items.takeRight(length)
-  def append(item: HistoryItem) = {
+  def append(item: DownloadHistory) = {
     items = items :+ item
   }
   def load = items = domain.mounts.mounts.flatMap {
@@ -24,12 +24,9 @@ class History(domain: Domain) {
   }
 }
 
-trait HistoryItem {
-  def time: Date
-  def mountName: String
-}
 
-class DownloadHistory(val startTime: Date, val transform: Transform) extends HistoryItem {
+
+class DownloadHistory(val startTime: Date, val transform: Transform) {
   var processed: Option[Int] = None
   var total: Option[Int] = None
   var done = false
