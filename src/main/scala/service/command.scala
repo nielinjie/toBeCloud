@@ -10,13 +10,13 @@ import nielinjie.util.io.XStreamSerializer
 import unfiltered.filter.Planify
 
 trait CommandPlan {
-  this: Web =>
+  this: {def domain:Domain} =>
   val lsOkS = new XStreamSerializer[LsOk]()
   val itemS = new XStreamSerializer[RemoteItem]()
   val whereOkS = new XStreamSerializer[WhereOk]()
   def commandPlan = Planify {
     case Path(Seg("command" :: "ls" :: Nil)) =>
-      ResponseString(lsOkS.serialize((LsOk(domain.ls().map(_.remoteView)))))
+      ResponseString(lsOkS.serialize((LsOk(domain.ls().map(_.remoteView(domain))))))
     case (Path(Seg("command" :: "where" :: Nil)) & Params(params)) => {
       val items = params.get("items")
       println(items)

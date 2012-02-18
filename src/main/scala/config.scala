@@ -3,6 +3,7 @@ package config
 import java.io.File
 import nielinjie.util.io.FileUtil
 import comm._
+import domain._
 import nielinjie.util.io.LocalAddress
 
 object Configs {
@@ -28,7 +29,7 @@ object Configs {
 
     val configFilePath = new File("./configMock/.toBeCloud")
 
-    override val mockPeers = List(Peer(LocalAddress.getFirstNonLoopbackAddress(true, false).getHostAddress, 3801))
+    override val mockPeers = List(Peer("mock2",LocalAddress.getFirstNonLoopbackAddress(true, false).getHostAddress, 3801))
     val webPort=3800
 
   }
@@ -41,7 +42,7 @@ object Configs {
     val connetPongPort = 3008
 
     val configFilePath = new File("./configMock2/.toBeCloud")
-    override val mockPeers = List(Peer(LocalAddress.getFirstNonLoopbackAddress(true, false).getHostAddress, 3800))
+    override val mockPeers = List(Peer("mock",LocalAddress.getFirstNonLoopbackAddress(true, false).getHostAddress, 3800))
     val webPort=3801
   }
 }

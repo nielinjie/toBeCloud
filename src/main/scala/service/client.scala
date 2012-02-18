@@ -67,6 +67,6 @@ class ServiceClient(val domain: Domain) extends Observing with Logger {
     })
   }
   def peerUrlRoot(peer: Peer): String = {
-    "http://%s".format(peer.asString)
+    "http://%s".format(peer.asAddress)
   }
 }

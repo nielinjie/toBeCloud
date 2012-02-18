@@ -26,7 +26,7 @@ import java.util.Date
 import java.net.URLEncoder
 import java.net.URLDecoder
 
-class Web(val config: Config) extends CommandPlan with UIPlan {
+class Web(val config: Config) extends CommandPlan with UIPlan with FileService {
   //TODO so many depent objects
   val domain = new Domain(config)
   val tower = new Tower(config)
@@ -40,31 +40,13 @@ class Web(val config: Config) extends CommandPlan with UIPlan {
         context.current.setBaseResource(new FileResource(new File("src/main/www").toURI.toURL))
     }
     .filter(uiPlan)
-    .context("/files") {
-      context =>
-        domain.mounts.mounts.foreach {
-          mount =>
-            context.current.addServlet(newDefaultServletHolder(mount), "/" + mount.name + "/*")
-        }
-    }
+    .context("/files")(fileContext)
     .filter(commandPlan)
 
   def start = {
     tower.start
     server.start
     server.join
-  }
-  def newDefaultServletHolder(mount: Mount) = new ServletHolder(new DefaultServlet with Logger {
-    override def getResource(pathInfo: String) = {
-      logger.debug(pathInfo)
-      new FileResource(new URL("file://" + mount.point.getAbsolutePath + URLDecoder.decode(pathInfo)))
-    }
-  }).doto {
-    holder =>
-      holder.setInitParameters(Map(
-        "acceptRanges" -> "true",
-        "dirAllowed" -> "true",
-        "pathInfoOnly" -> "true"))
   }
 
 }
@@ -85,7 +67,7 @@ class Status(config: Config, tower: Tower, client: ServiceClient, history: Histo
     history.append(hi)
     client.download(peer, transform, hi)
   }
-  def history(length: Int): List[HistoryItem] = {
+  def history(length: Int): List[DownloadHistory] = {
     history.tail(length)
   }
 }

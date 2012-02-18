@@ -1,5 +1,6 @@
 package nielinjie.app.toBeCloud
 package comm
+import domain._
 import nielinjie.util.io.Flasher
 import java.net.InetAddress
 import nielinjie.util.io.FlashMessage
@@ -26,14 +27,3 @@ class Tower(val config: Config) extends Observing {
 
 }
 
-case class Peer(ip: String, port: Int) {
-  def asString = "%s:%s".format(ip, port)
-}
-object Peer {
-  val addressPattern = "(.*):(.*)".r
-  def fromString(ipAndPort: String) = {
-    val addressPattern(ip, port) = ipAndPort
-    Peer(ip, port.toInt)
-  }
-
-}

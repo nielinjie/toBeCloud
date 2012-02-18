@@ -13,9 +13,11 @@ import org.ini4j.Profile.Section
 class Define(config: Config) {
   import nielinjie.util.data.Params._
 
-  lazy val file: Option[Ini] = needFile(new File(config.configFilePath, "define.ini")).toOption.join.map {
-    f: File =>
-      new Ini(f)
+  lazy val file: Option[Ini] = {
+    needFile(new File(config.configFilePath, "define.ini")).toOption.join.map {
+      f: File =>
+        new Ini(f)
+    }
   }
   val mountDefineConfigLookUp = {
     for {
